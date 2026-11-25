@@ -11,7 +11,7 @@ from torchtyping import TensorType
 from gflownet.envs.sequences.base import SequenceBase
 from gflownet.utils.common import tlong
 
-NUCLEOBASES = ("A", "C", "T", "G")
+NUCLEOBASES = ("A", "C", "G", "T")
 PAD_TOKEN = "0"
 
 

@@ -129,7 +129,7 @@ class Logger:
         self.datadir = self.logdir / "data"
         self.datadir.mkdir(parents=True, exist_ok=True)
         # Write wandb URL
-        self.write_url_file()
+        # self.write_url_file()
 
     def write_url_file(self):
         if self.wandb is not None:

@@ -1,0 +1,10 @@
+defaults:
+  - base
+
+_target_: gflownet.proxy.sequences.cherimoya.cherimoya_scorer.CherimoyaScorer
+
+nucleotide_scores: 
+  'A': 1
+  'C': 2
+  'G': 3
+  'T': 4
