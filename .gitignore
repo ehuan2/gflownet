@@ -19,3 +19,4 @@ logs
 gflownet-env/
 samples/
 wandb/
+*.png
