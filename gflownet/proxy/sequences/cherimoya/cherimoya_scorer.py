@@ -42,7 +42,9 @@ class CherimoyaScorer(Proxy):
         self.original_seq = torch.from_numpy(
             np.load("./gflownet/proxy/sequences/cherimoya/seqs/X_0.npy")
         ).to("cuda")
-        self.start_idx = 1057
+        # We should get this from the gflownet/proxy/sequences/cherimoya/seqs/find_best_section.py
+        # this will depend on how large we want to edit -- configurable in range_of_nucleotides 
+        self.start_idx = 1440
 
     def onehot2idx(self, onehot_seq: TensorType["batch", 4, "seq_len"]) -> TensorType["batch", "seq_len"]:
         """
@@ -67,13 +69,12 @@ class CherimoyaScorer(Proxy):
 
         profile_logits, log_counts = self.model(edited_seqs.to("cuda"))
         profile = torch.softmax(profile_logits.float(), dim=-1)
-        # now return the reward as the inverse of the KL divergence between the profiles
-        # meaning that if it's further away, it's worse
-        rewards = 1.0 / torch.nn.functional.kl_div(
-            profile,
-            self.pred_y_profile,
-            reduction='none'
-        ).sum(dim=-1).squeeze()
+        # we can totally just do MSE between these two profiles!
+        # the higher the MSE, the worse the score, so let's take the 1/MSE
+        # so that way it's still positive (with an epsilon added)
+        # take the log of it as well
+        rewards = torch.log(1.0 / (torch.mean((profile - self.pred_y_profile) ** 2, dim=(1, 2)) + 1e-8))
+
         # but give a large negative reward as well for the original sequence so that it doesn't sample that
         original_sec = self.original_seq[:, :, self.start_idx : self.start_idx + state_seqs.shape[-1]].to(self.device)
         # have to check if the original sequence is equal to the state
